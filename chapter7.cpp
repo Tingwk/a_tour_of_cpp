@@ -3,8 +3,9 @@
 #include <stdexcept>
 #include <string>
 #include <array>
+#include <algorithm>
 
-using std::cout, std::cin;
+using std::cout, std::cin, std::endl;
 
 template<class T>
 class Vector {
@@ -71,11 +72,54 @@ Value sum(const Seq& seq, Value& v) {
   return v;
 }
 
+template<class T>
+class Less_than {
+ public:
+  explicit Less_than(T val):val_(val) {}
+  bool operator()(const T other) {return other < val_;}
+  const T val_;
+};
+
+template<class T>
+class PositiveInteger {
+ public:
+  PositiveInteger() {}
+  bool operator()(T t) {
+    return t > 0;  
+  }
+};
+template<class Seq, class Pred>
+int count_if(Seq& seq, Pred& pred) {
+  int count {0};
+  for (auto& item: seq)
+    if (pred(item))
+      ++count;
+  return count;
+}
+
 int main() {
   {
-    Vector v {"Sjtu", "Fdu"};
-    write(v);
+    std::vector<int> v{22,-11,3,-2,0};
+    PositiveInteger<int> pred;
+    std::vector<std::string> strs{"AG","Russia", "Dwc", "Ocd"};
+    Less_than<std::string> str{"Backus"};
+    auto positive_count = count_if(v, pred);
+    cout << "Positive numbers in v: "<< positive_count << '\n';
+    cout << "The number of strings less than " << str.val_ << ": " << count_if(strs, str) << '\n'; 
+    // using std::vector;
+    // vector<int> v{22,11,33};
+    // Less_than<int> l(10);
+    // auto k = 100;
+    // if (l.operator()(k)) {
+    //   cout << l.val_ << " less than " <<  k << endl;
+    // }
+    // std::sort(v.begin(), v.end(), Less_than<int>())
+    // using Less_than to sort an vector
   }
+  // {
+  //   Vector v {"Sjtu", "Fdu"};
+  //   write(v);
+  // }
   // {
   //   constexpr int N = 5;
   //   std::array<int, N> arr;
