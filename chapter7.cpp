@@ -1,9 +1,14 @@
+#include <ios>
 #include <iostream>
 #include <exception>
 #include <stdexcept>
 #include <string>
 #include <array>
+#include <vector>
 #include <algorithm>
+#include <type_traits>
+#include "type_traits.h"
+#include <memory>
 
 using std::cout, std::cin, std::endl;
 
@@ -96,16 +101,182 @@ int count_if(Seq& seq, Pred& pred) {
       ++count;
   return count;
 }
+// #1
+template<class T>
+typename enable_if<std::is_pointer<T>::value, void>::type
+do_something(T) {
+  std::cout << "Calling do_something(T*), returns nothing" << std::endl;
+}
+
+// #2
+template<class T>
+typename enable_if<!std::is_pointer<T>::value, T>::type
+do_something(T t) {
+  std::cout << "Calling do_something(T), returns " << t << std::endl;
+  return t;
+}
+template<typename T>
+void test(T t) {
+  if (std::is_pointer<T>::value) {
+    cout << "t is an pointer" << std::endl;
+    return;
+  }
+  std::cout << "t is an ordinary type" << std::endl;
+}
+
+class B{};
+struct A{};
+enum class C{};
+
+
+// is_function
+struct AA {
+  int fun();
+};
+
+template <typename T> struct PM_traits {};
+template<typename U, typename V>
+struct PM_traits<U V::*> {
+  using member_type = U;
+};
+int f();
+
+void print(std::shared_ptr<int>& ptr) {
+  cout << ptr.use_count() << '\t' << &ptr << '\n';
+  cout << *ptr << endl;
+}
 
 int main() {
   {
-    std::vector<int> v{22,-11,3,-2,0};
-    PositiveInteger<int> pred;
-    std::vector<std::string> strs{"AG","Russia", "Dwc", "Ocd"};
-    Less_than<std::string> str{"Backus"};
-    auto positive_count = count_if(v, pred);
-    cout << "Positive numbers in v: "<< positive_count << '\n';
-    cout << "The number of strings less than " << str.val_ << ": " << count_if(strs, str) << '\n'; 
+    std::vector<int> v;
+    constexpr int count = 33;
+    for (int i = 0; i < count; i++) {
+      v.emplace_back(i + 1);
+      cout << v.capacity() <<' ';
+      if (i % 8 == 0) 
+        cout << '\n';
+    }
+    cout << '\n';
+    std::vector<int> v1;
+    v1.reserve(count);
+    for (int i = 0; i < count; i++) {
+      v.push_back(i + 1);
+      cout << v.capacity() <<' ';
+      if (i % 8 == 0) 
+        cout << '\n';
+    }
+  }
+  // {
+  //   std::shared_ptr<int> ptr(new int (10));
+  //   cout << ptr.use_count() << '\t' << &ptr << '\n';
+  //   print(ptr);
+  //   cout << ptr.use_count() << '\t' << &ptr << '\n';
+  // }
+  // {
+  //   struct AA
+  //   {
+  //     char a;
+  //     char c;
+  //     int b;
+  //   };
+  //   cout << sizeof(AA) << endl;
+    
+  // }
+  // is_pointer
+  // {
+  //   struct A
+  //   {
+  //       int m;
+  //       void f() {}
+  //   };
+ 
+  //   int A::*mem_data_ptr = &A::m;     // a pointer to member data
+  //   void (A::*mem_fun_ptr)() = &A::f; // a pointer to member function
+ 
+  //   static_assert(
+  //          ! std::is_pointer<A>::value
+  //       && ! std::is_pointer_v<A>    // same thing as above, but in C++17!
+  //       && ! std::is_pointer<A>()    // same as above, using inherited operator bool
+  //       && ! std::is_pointer<A>{}    // ditto
+  //       && ! std::is_pointer<A>()()  // same as above, using inherited operator()
+  //       && ! std::is_pointer<A>{}()  // ditto
+  //       &&   std::is_pointer_v<A*>
+  //       &&   std::is_pointer_v<A const* volatile>
+  //       && ! std::is_pointer_v<A&>
+  //       && ! std::is_pointer_v<decltype(mem_data_ptr)>
+  //       && ! std::is_pointer_v<decltype(mem_fun_ptr)>
+  //       &&   std::is_pointer_v<void*>
+  //       && ! std::is_pointer_v<int>
+  //       &&   std::is_pointer_v<int*>
+  //       &&   std::is_pointer_v<int**>
+  //       && ! std::is_pointer_v<int[10]>
+  //       && ! std::is_pointer_v<std::nullptr_t>
+  //       &&   std::is_pointer_v<void (*)()>
+  //   );
+  //   cout << std::boolalpha << std::is_pointer<nullptr_t>::value << endl;
+  // }
+  // is_enum
+  // {
+  //   struct A
+  //   {
+  //     enum  T{};
+  //   };
+  //   enum E{};
+  //   enum class Ec : int {};
+  //   cout << std::boolalpha;
+  //   cout << std::is_enum<A>::value << endl; // false
+  //   cout << std::is_enum<A::T>::value << endl; // true
+  //   cout << std::is_enum<E>::value << endl; // true
+  //   cout << std::is_enum<Ec>::value << endl;  // true
+  //   cout << std::is_enum<int>::value << endl; // false
+    
+  // }
+  // is_array
+  // {
+  //   class A{};
+  //   cout << std::boolalpha;
+  //   cout << std::is_array<A>::value << endl; // false
+  //   cout << std::is_array<A[]>::value << endl; // true
+  //   cout << std::is_array<A[3]>::value << endl; // true
+  //   cout << std::is_array<float>::value << endl; // false
+  //   cout << std::is_array<int>::value << endl; // false
+  //   cout << std::is_array<int[3]>::value << endl; // true
+  //   cout << std::is_array<int[]>::value << endl; // true
+  //   cout << std::is_array<std::array<int,3>>::value << endl; // fasle.
+  // }
+  // {
+  //   std::cout << std::boolalpha;
+  //   std::cout << std::is_class<A>::value << std::endl;// outputs true, which indicates that struct is an class.
+  //   std::cout << std::is_class<B>::value << std::endl;
+  //   std::cout << std::is_class<C>::value << std::endl;
+  //   std::cout << std::is_class<int>::value << std::endl;
+  //   // is_function
+  //   std::cout << std::is_function<AA>::value << std::endl;
+  //   std::cout << std::is_function<int(int)>::value << std::endl;
+  //   std::cout << std::is_function<decltype(f)>::value << std::endl;
+  //   std::cout << std::is_function<int>::value << std::endl;
+  //   using T = PM_traits<decltype(&AA::fun)>::member_type;
+  //   std::cout << std::is_function<T>::value << std::endl;
+  // }
+  // {
+  //   int i = 3;
+  //   do_something(&i);
+  //   do_something(i);
+  //   test(i);
+  //   test(&i);
+  // }
+  // {
+  //   std::cout << "5! = " << Factorial<5>::value << std::endl;
+  //   std::cout << multiply(3.1,3.1) << std::endl;
+  // }
+  {
+    // std::vector<int> v{22,-11,3,-2,0};
+    // PositiveInteger<int> pred;
+    // std::vector<std::string> strs{"AG","Russia", "Dwc", "Ocd"};
+    // Less_than<std::string> str{"Backus"};
+    // auto positive_count = count_if(v, pred);
+    // cout << "Positive numbers in v: "<< positive_count << '\n';
+    // cout << "The number of strings less than " << str.val_ << ": " << count_if(strs, str) << '\n'; 
     // using std::vector;
     // vector<int> v{22,11,33};
     // Less_than<int> l(10);

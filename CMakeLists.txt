@@ -14,3 +14,4 @@ set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 
 
 add_executable(chapter7 chapter7.cpp)
+add_executable(std_array std_array.cpp)
