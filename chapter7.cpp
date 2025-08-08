@@ -9,6 +9,7 @@
 #include <type_traits>
 #include "type_traits.h"
 #include <memory>
+#include <set>
 
 using std::cout, std::cin, std::endl;
 
@@ -145,27 +146,48 @@ void print(std::shared_ptr<int>& ptr) {
   cout << ptr.use_count() << '\t' << &ptr << '\n';
   cout << *ptr << endl;
 }
+using frame_id_t = int;
+class LRUComparator {
+ public:
+  auto operator()(const std::pair<frame_id_t, uint64_t> p1, const std::pair<frame_id_t, size_t> &p2) const -> bool {
+    return p1.second < p2.second;
+  }
+};
+
 
 int main() {
   {
-    std::vector<int> v;
-    constexpr int count = 33;
-    for (int i = 0; i < count; i++) {
-      v.emplace_back(i + 1);
-      cout << v.capacity() <<' ';
-      if (i % 8 == 0) 
-        cout << '\n';
-    }
-    cout << '\n';
-    std::vector<int> v1;
-    v1.reserve(count);
-    for (int i = 0; i < count; i++) {
-      v.push_back(i + 1);
-      cout << v.capacity() <<' ';
-      if (i % 8 == 0) 
-        cout << '\n';
-    }
+    using lru_pair = std::pair<frame_id_t, uint64_t>;
+    // std::set<std::pair<frame_id_t, uint64_t>, LRUComparator> s(LRUComparator());
+    auto s = std::set<std::pair<frame_id_t, uint64_t>, LRUComparator>(LRUComparator());
+    
+    s.insert({1,2});
+    s.insert({3,1});
+    s.insert({5,5});
+    s.insert({7,3});
+    for (const auto& pr: s)
+      cout << pr.first << ' ' << pr.second << '\n';
+
   }
+  // {
+  //   std::vector<int> v;
+  //   constexpr int count = 33;
+  //   for (int i = 0; i < count; i++) {
+  //     v.emplace_back(i + 1);
+  //     cout << v.capacity() <<' ';
+  //     if (i % 8 == 0) 
+  //       cout << '\n';
+  //   }
+  //   cout << '\n';
+  //   std::vector<int> v1;
+  //   v1.reserve(count);
+  //   for (int i = 0; i < count; i++) {
+  //     v.push_back(i + 1);
+  //     cout << v.capacity() <<' ';
+  //     if (i % 8 == 0) 
+  //       cout << '\n';
+  //   }
+  // }
   // {
   //   std::shared_ptr<int> ptr(new int (10));
   //   cout << ptr.use_count() << '\t' << &ptr << '\n';
