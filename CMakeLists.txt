@@ -16,4 +16,15 @@ set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 add_executable(chapter7 chapter7.cpp)
 add_executable(std_array std_array.cpp)
 add_executable(main main.cpp)
+add_executable(function function.cpp)
+target_compile_options(function PRIVATE 
+  -g
+  -std=c++20
+)
+add_executable(optional optional.cpp)
+target_compile_options(optional PRIVATE -g -std=c++20)
+add_executable(utility utility.cpp)
+add_executable(vector vector.cpp)
+target_compile_options(utility PRIVATE -g -std=c++20 )
+target_compile_options(vector PRIVATE -g -std=c++20 )
 target_include_directories(main PUBLIC SYSTEM  ${CMAKE_SOURCE_DIR}/utility)
