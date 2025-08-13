@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 0.1.0)
+cmake_minimum_required(VERSION 3.13)
 
 project(cpp_tour LANGUAGES CXX C)
 
@@ -25,6 +25,8 @@ add_executable(optional optional.cpp)
 target_compile_options(optional PRIVATE -g -std=c++20)
 add_executable(utility utility.cpp)
 add_executable(vector vector.cpp)
+add_executable(types types.cpp)
 target_compile_options(utility PRIVATE -g -std=c++20 )
 target_compile_options(vector PRIVATE -g -std=c++20 )
+target_compile_options(types PRIVATE -g -std=c++20 )
 target_include_directories(main PUBLIC SYSTEM  ${CMAKE_SOURCE_DIR}/utility)
